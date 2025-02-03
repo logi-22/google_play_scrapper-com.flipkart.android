@@ -7,7 +7,7 @@ result, continuation_token = reviews(
     country='us', # defaults to 'us'
     sort=Sort.NEWEST, # defaults to Sort.NEWEST
     # defaults to 100
-    count=200,
+    count=2000,
     #filter_score_with=5 # defaults to None(means all score)
 )
 
@@ -24,7 +24,12 @@ print(f"Distributed Reviews:\n",distributed_reviews)
 
 #2.number of upvotes
 total_count=df['thumbsUpCount'].sum()
-print("\nThe Total number of upvotes\n:",total_count)
+print(f"The Total number of upvotes\n:",total_count)
+
+#3.Can you determine the male-to-female distribution?
+# we can't determine by using the given data
+# which can not contain male-female distribution
+
 
 #4.longest review
 df['content_length']=df['content'].str.len()
@@ -32,10 +37,15 @@ longest_review=df.loc[df['content_length'].idxmax()]
 print(f"Longest Review:\n",longest_review['content'])
 
 #5.How frequently do users review the app?
-df['at']=pd.to_datetime(df['at'])
-df['date']=df['at'].dt.date
-frequency_of_review=df['date'].value_counts().sort_index()
-print(f"Frequency of Review:\n",frequency_of_review)
+# df['at']=pd.to_datetime(df['at'])
+# df['date']=df['at'].dt.date
+# frequency_of_review=df['date'].value_counts().sort_index()
+# print(f"Frequency of Review:\n",frequency_of_review)
+
+df['at'] = pd.to_datetime(df['at'])
+reviews_df=df.sort_values(by='at')
+time_between_reviews = reviews_df['at'].diff().mean()
+print(f"Average Time Between Reviews: {time_between_reviews}")
 
 #6.When are reviews most commonly submitted?
 df['hour']=df['at'].dt.hour
@@ -44,5 +54,8 @@ print(f"Most common time:\n",most_common_time)
 
 #7.What is the overall sentiment of the app?
 sentiment=df['score'].mean()
-overall_sentiment="Positive" if sentiment>3 else "Negative"
+if sentiment>3:
+    overall_sentiment="Positive"
+else:
+    overall_sentiment="Negative"    
 print(f"Overall Sentiment:\n",overall_sentiment)
